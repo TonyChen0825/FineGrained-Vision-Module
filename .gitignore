@@ -1,0 +1,12 @@
+__pycache__/ 
+*.pyc 
+.venv/ 
+data/ 
+models/ 
+experiments/ 
+*.pth 
+*.pt 
+*.bin 
+.vscode/ 
+.idea/ 
+venv_fashion/ 
