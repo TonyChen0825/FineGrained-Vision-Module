@@ -1,0 +1,13 @@
+{
+  "total_images": 100,
+  "total_objects": 158,
+  "total_time": 56.0484402179718,
+  "avg_time_per_image_ms": 560.484402179718,
+  "category_distribution": {
+    "配饰": 27,
+    "上衣": 69,
+    "裤子": 19,
+    "包": 33,
+    "外套": 10
+  }
+}
