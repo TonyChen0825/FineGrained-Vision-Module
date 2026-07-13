@@ -11,7 +11,7 @@ SAMPLES_IMAGES_DIR = os.path.join(SAMPLES_DIR, "images")
 OUTPUTS_DIR = os.path.join(PROJECT_ROOT, "outputs")
 RESULTS_DIR = os.path.join(OUTPUTS_DIR, "results")
 MODELS_DIR = os.path.join(PROJECT_ROOT, "models")
-
+QWEN_VL_MODEL = os.path.join(MODELS_DIR, "qwen-vl-chat")
 
 SAM_HQ_WEIGHT = os.path.join(MODELS_DIR, "sam-hq", "sam_hq_vit_b.pth")
 
