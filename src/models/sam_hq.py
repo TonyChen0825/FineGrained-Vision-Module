@@ -15,15 +15,13 @@ except ImportError:
 
 
 class SAMHQSgmentor:
-    def __init__(self, weight_path, model_type="vit_b"):
-        """
-        初始化分割器
-        weight_path: .pth权重文件路径
-        model_type: vit_b / vit_l / vit_h
-        """
+    def __init__(self, weight_path, model_type="vit_l"):
+        from segment_anything import sam_model_registry, SamPredictor
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
-        self.weight_path = weight_path
-        
+        self.model = sam_model_registry[model_type](checkpoint=weight_path)
+        self.model.to(self.device)
+        self.model.eval()
+        self.predictor = SamPredictor(self.model)
         print(f" 加载SAM...")
         print(f"  权重: {weight_path}")
         print(f"  设备: {self.device}")
@@ -39,7 +37,7 @@ class SAMHQSgmentor:
             # 简化模式
             self.model = None
             self.predictor = None
-            print("⚠️ 使用简化模式（仅显示bbox）")
+            print(" 使用简化模式（仅显示bbox）")
     
     def predict(self, image_path, bboxes):
         """对一张图片中的多个bbox进行分割"""
@@ -60,7 +58,7 @@ class SAMHQSgmentor:
                     box=input_box,
                     multimask_output=False
                 )
-                mask = (masks[0] > 0.5).astype(np.uint8) * 255
+                mask = (masks[0] > 0).astype(np.uint8) * 255
                 results.append({
                     'mask': mask,
                     'bbox': [x1, y1, x2, y2],
@@ -83,33 +81,57 @@ class SAMHQSgmentor:
         return results
     
     def visualize(self, image_path, results, save_path=None, categories=None):
-        """可视化分割结果"""
+        import cv2
+        import numpy as np
+    
         image = cv2.imread(image_path)
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-        
+    
+    # 定义颜色（每个实例不同颜色）
         colors = [
-            (0, 255, 0), (255, 0, 0), (0, 0, 255),
-            (255, 255, 0), (255, 0, 255), (0, 255, 255),
-            (128, 128, 0), (128, 0, 128)
-        ]
-        
+            (255, 0, 0),    # 红色
+            (0, 255, 0),    # 绿色
+            (0, 0, 255),    # 蓝色
+            (255, 255, 0),  # 黄色
+            (255, 0, 255),  # 紫色
+            (0, 255, 255),  # 青色
+            (128, 0, 128),  # 紫色
+            (255, 165, 0),  # 橙
+            ]
+    
         for i, res in enumerate(results):
             color = colors[i % len(colors)]
-            mask = res['mask']
+            mask = res['mask']      # 二值掩码 (0 或 255)
             bbox = res['bbox']
-            
+        
+       
+        # 创建一个和原图一样大的彩色图层
+            colored_mask = np.zeros_like(image)
+        # 把掩码区域设为对应的颜色
+            colored_mask[mask > 0] = color
+        
+        # 半透明叠加 (alpha=0.5 表示透明度 50%)
+            alpha = 0.5
+            image = cv2.addWeighted(image, 1, colored_mask, alpha, 0)
+        
+     
             contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
             cv2.drawContours(image, contours, -1, color, 2)
-            
+        
+        #  保留：绘制边界框 
             x1, y1, x2, y2 = bbox
             cv2.rectangle(image, (x1, y1), (x2, y2), color, 2)
-            
-            label = categories[i] if categories and i < len(categories) else f"#{i+1}"
-            cv2.putText(image, label, (x1, y1-10),
-                       cv2.FONT_HERSHEY_SIMPLEX, 0.6, color, 2)
         
+        # 保留：添加类别标签 
+            label = categories[i] if categories and i < len(categories) else f"#{i+1}"
+        # 给标签加白色背景，更清晰
+            (text_w, text_h), _ = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, 0.6, 2)
+            cv2.rectangle(image, (x1, y1 - text_h - 10), (x1 + text_w, y1), (255, 255, 255), -1)
+            cv2.putText(image, label, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.6, color, 2)
+    
+    # 保存结果
         if save_path:
             cv2.imwrite(save_path, cv2.cvtColor(image, cv2.COLOR_RGB2BGR))
             print(f"   保存: {save_path}")
-        
+    
         return image

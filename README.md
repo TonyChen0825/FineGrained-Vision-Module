@@ -77,7 +77,6 @@ python scripts/run_segmentation.py
 
 ## 项目结构
 
-```
 FineGrained-Vision-Module/
 ├── configs/
 │   └── paths.py              # 路径配置文件
@@ -86,41 +85,68 @@ FineGrained-Vision-Module/
 │       ├── images/           # 样本图片
 │       └── annotations.json  # 统一标注文件
 ├── src/
-│   └── models/
-│       └── sam_hq.py         # SAM-HQ 分割器封装
+│   ├── models/
+│   │   ├── sam_hq.py         # SAM-HQ 分割器封装
+│   │   └── light_hqsam.py    # Light HQ-SAM 分割器封装
+│   └── utils/
+│       └── metrics.py        # IoU 评估工具
 ├── scripts/
 │   ├── extract_samples.py    # 样本提取脚本
 │   └── run_segmentation.py   # 分割运行脚本
 ├── models/
 │   └── sam-hq/
-│       └── sam_hq_vit_b.pth  # SAM-HQ 模型权重
+│       ├── light_hqsam/
+│       │   └── sam_hq_vit_tiny.pth  # Light HQ-SAM 权重（42.5 MB）
+│       ├── sam_hq_vit_b.pth         # HQ-SAM ViT-B 权重（379 MB）
+│       └── sam_hq_vit_l.pth         # HQ-SAM ViT-L 权重（1.25 GB）
 ├── outputs/
 │   └── results/              # 分割结果输出
 ├── requirements.txt          # Python 依赖
 └── README.md                 # 项目说明
-```
 
 ## 当前进展
 
-| 模块 | 状态 | 说明 |
-| :--- | :--- | :--- |
-| 环境搭建 | ✅ 完成 | Python 虚拟环境 + CUDA + 全部依赖 |
-| 数据预处理 | ✅ 完成 | 从 DeepFashion2 提取 100 张样本 |
-| 服饰分割 | ✅ 完成 | SAM-HQ 分割 100 张图片，158 个服饰实例 |
-| 语言引导定位 | 🚧 开发中 | 基于 DINOv2 + Qwen-VL |
-| 属性识别 | 📋 计划中 | 基于 FashionAI 数据集微调 |
+模块	状态	说明
+环境搭建	完成	Python 虚拟环境 + CUDA + 全部依赖
+数据预处理	完成	从 DeepFashion2 提取 100 张样本
+服饰分割	完成	支持 8 大类服饰实例分割
+模型部署	完成	支持 Light HQ-SAM / ViT-B / ViT-L
+IoU 评估	完成	支持像素级分割精度量化
+语言引导定位	开发中	基于 DINOv2 + SentenceTransformer
+属性识别	计划中	基于 FashionAI 数据集微调
 
 ## 性能指标
 
-基于 100 张测试样本：
+基于 1000 张测试样本：
 
 | 指标 | 数值 |
-| :--- | :--- |
-| 处理图片数 | 100 张 |
-| 分割对象数 | 158 件 |
-| 总耗时 | 56 秒 |
-| 平均每张图片 | 560 ms |
-| 平均每个对象 | 355 ms |
+  处理图片数: 1000
+  分割对象数: 1612
+  总耗时: 53.42s
+  平均每张: 53.42ms
+  平均每个对象: 33.14ms
+  评估对象数: 1612
+  平均 IoU: 0.3540
+  最小 IoU: 0.0000
+  最大 IoU: 0.9906
+  中位数 IoU: 0.2512
+
+  各类别 IoU:
+    吊带连衣裙: 0.5448 (n=7)
+    背心连衣裙: 0.4982 (n=130)
+    上衣: 0.4875 (n=375)
+    长袖上衣: 0.4867 (n=208)
+    长袖连衣裙: 0.4568 (n=63)
+    长袖外套: 0.4045 (n=115)
+    短袖连衣裙: 0.3437 (n=65)
+    背心: 0.2539 (n=47)
+    短裤: 0.2213 (n=153)
+    长裤: 0.1911 (n=332)
+    裙子: 0.0993 (n=112)
+    短袖外套: 0.0027 (n=5)
+
+   平均 IoU = 0.3540
+ 
 
 ## 技术栈
 

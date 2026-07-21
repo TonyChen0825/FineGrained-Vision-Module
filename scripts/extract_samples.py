@@ -30,8 +30,9 @@ def extract_samples():
     
     # 8类服饰
     cat_names = {
-        1: '上衣', 2: '裤子', 3: '裙子', 4: '外套',
-        5: '连衣裙', 6: '鞋子', 7: '包', 8: '配饰'
+        1: '上衣', 2: '长袖上衣', 3: '短袖外套', 4: '长袖外套',
+        5: '背心', 6: '吊带', 7: '短裤', 8: '长裤', 9: '裙子', 
+        10: '短袖连衣裙', 11: '长袖连衣裙', 12: '背心连衣裙', 13: '吊带连衣裙'
     }
     
     selected = []
@@ -40,7 +41,7 @@ def extract_samples():
     print(" 提取图片...")
     
     for json_path in json_files:
-        if img_count >= 100:
+        if img_count >= 1000:
             break
         
         with open(json_path, 'r', encoding='utf-8') as f:
@@ -63,7 +64,8 @@ def extract_samples():
                         annotations.append({
                             'bbox': bbox,
                             'category_id': cat_id,
-                            'category_name': cat_names.get(cat_id, cat_name)
+                            'category_name': cat_names.get(cat_id, cat_name),
+                            'segmentation': value.get('segmentation', [])
                         })
         
         if not annotations:

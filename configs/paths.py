@@ -4,7 +4,7 @@ import os
 # 项目根目录
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-# ===== 项目内目录 =====
+#项目内目录
 DATA_DIR = os.path.join(PROJECT_ROOT, "data")
 SAMPLES_DIR = os.path.join(DATA_DIR, "samples")
 SAMPLES_IMAGES_DIR = os.path.join(SAMPLES_DIR, "images")
@@ -13,9 +13,10 @@ RESULTS_DIR = os.path.join(OUTPUTS_DIR, "results")
 MODELS_DIR = os.path.join(PROJECT_ROOT, "models")
 QWEN_VL_MODEL = os.path.join(MODELS_DIR, "qwen-vl-chat")
 
+LIGHT_HQSAM_WEIGHT = os.path.join(MODELS_DIR, "sam-hq", "light_hqsam", "sam_hq_vit_tiny.pth")
 SAM_HQ_WEIGHT = os.path.join(MODELS_DIR, "sam-hq", "sam_hq_vit_b.pth")
 
-# ===== 原始数据路径=====
+# 原始数据路径
 
 RAW_DATA_ROOT = "C:/Users/29941/Desktop/albb/data" 
 DEEPFASHION2_ROOT = os.path.join(RAW_DATA_ROOT, "deepfashion2")

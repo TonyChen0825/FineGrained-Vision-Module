@@ -7,7 +7,7 @@ import os
 
 
 class LanguageGuidedLocalizer:
-    def __init__(self, text_encoder_type="sentence-transformers"):
+    def __init__(self, text_encoder_type="qwen"):
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
         self.text_encoder_type = text_encoder_type
 
@@ -35,14 +35,16 @@ class LanguageGuidedLocalizer:
     def _load_sentence_transformer(self):
         try:
             from sentence_transformers import SentenceTransformer
-            print(" 加载 SentenceTransformer...")
-            self.text_encoder = SentenceTransformer('all-MiniLM-L6-v2')
-            print(" SentenceTransformer 加载完成")
+            print("加载 SentenceTransformer（768维）...")
+            # 使用本地 768 维模型
+            local_model_path = r"C:\Users\29941\Desktop\albb\FineGrained-Vision-Module\models\all-mpnet-base-v2"
+            self.text_encoder = SentenceTransformer(local_model_path)
+            print("SentenceTransformer 加载完成（768维）")
         except ImportError:
-            print(" 请安装 sentence-transformers: pip install sentence-transformers")
+            print("请安装 sentence-transformers")
             raise
 
-    def _load_qwen(self):python scripts/run_localization.py
+    def _load_qwen(self):
         try:
             from transformers import QwenVLForConditionalGeneration, QwenVLProcessor
             import sys
@@ -108,10 +110,12 @@ class LanguageGuidedLocalizer:
 
         similarities = []
         for vf in visual_feats:
-            # 取前 384 维匹配文本特征维度
-            vf_trimmed = vf[:384]
-            sim = np.dot(text_feat, vf_trimmed) / (np.linalg.norm(text_feat) * np.linalg.norm(vf_trimmed) + 1e-8)
+            sim = np.dot(text_feat, vf) / (np.linalg.norm(text_feat) * np.linalg.norm(vf) + 1e-8)
             similarities.append(float(sim))
+
+    # 检查 similarities 是否为空
+        if not similarities:
+            return None
 
         best_idx = int(np.argmax(similarities))
 
@@ -120,4 +124,5 @@ class LanguageGuidedLocalizer:
             'best_bbox': regions[best_idx],
             'similarities': similarities,
             'confidence': similarities[best_idx]
-        }
+    }
+        
