@@ -52,3 +52,8 @@ results/
 
 # ===== 外部子模块 =====
 sam-hq/
+
+# 输出结果（图片太大，不上传）
+outputs/results/*.jpg
+outputs/results/*.png
+outputs/results/*.jpeg
